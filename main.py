@@ -73,26 +73,45 @@ def gauss(term):
 
 
 epsilon = 60
+sigma_epsilon = 0
 
 #3.2
 # erster punkt, 2 messungen für rechts und links
 delta_min1 = 33.5 #grad
+sigma_delta_min1 = 0.05
 aichung1 = -5.4
 delta_min2 = 291.6
+sigma_delta_min2 = 0.05
 aichung2 = 330.4
 
 delta_min1 = delta_min1 - aichung1
 delta_min2 = abs(delta_min2 - aichung2)
 
 n1 = sin(2*pi/360*((delta_min1 + epsilon)/2))/sin(2*pi/360*(epsilon/2))
-sigma_n1 = gauss("sin(2*pi/360*((delta_min1 + epsilon)/2))/sin(2*pi/360*(epsilon/2))")
+sigma_n1 = gauss("sin(2*(pi/360)*((delta_min1 + epsilon)/2))/sin(2*(pi/360)*(epsilon/2))")
 
+n2 = sin(2*pi/360*((delta_min2 + epsilon)/2))/sin(2*pi/360*(epsilon/2))
+sigma_n2 = gauss("sin(2*(pi/360)*((delta_min2 + epsilon)/2))/sin(2*(pi/360)*(epsilon/2))")
 
 #2. punkt
 Nullpunkt = 339
 gelb = 19.4
 
 gelb = gelb + 360 - Nullpunkt
+gelb = 2*pi/360*gelb
+sigma_gelb = 0.1
+sigma_gelb = gauss("2*pi/360*gelb")
+theta = 60
+sigma_theta = 1
+theta = 2*pi/360*theta
+sigma_theta = gauss("2*pi/360*theta")
+
+epsilon = 2*pi*epsilon/360
+n_gelb = sqrt(2*cos(epsilon)*sin(epsilon + gelb - theta)*sin(theta) + sin(theta)**2 + sin(epsilon + gelb - theta)**2)/sin(epsilon)
+sigma_n_gelb = gauss("sqrt(2*cos(epsilon)*sin(epsilon + gelb - theta)*sin(theta) + sin(theta)**2 + sin(epsilon + gelb - theta)**2)/sin(epsilon)")
+
+
+
 
 #3. punkt
 #Nullpunkt wie bei punkt 2
@@ -100,14 +119,24 @@ gelb = gelb + 360 - Nullpunkt
 #Prisma I
 
 W1_Hg = matrix("""
-2 19.3;
-3 19.4;
-5 19.5;
-7 19.7;
-8 20.2;
-9 20.4;
-10 20.45
+2 623.4 19.3;
+3 578 19.4;
+5 546.1 19.5;
+7 491.6 19.7;
+8 435.8 20.2;
+9 407.8 20.4;
+10 404.7 20.45
 """)# Nr. aus der tabelle, Wellenlänge,gemessener winkel
+
+delta1 = 360 + W1_Hg[:, 2] - Nullpunkt
+delta1 = delta1*2*pi/360
+n1_Hg = ones(len(delta1))
+for i in range(len(delta1)):
+    n1_Hg[i] = (sqrt(2*cos(epsilon)*sin(epsilon + delta1[i, 0] - theta)*sin(theta) + sin(theta)**2 + sin(epsilon + delta1[i, 0] - theta)**2)/sin(epsilon))
+
+lamda1_Hg = W1_Hg[:, 1]
+
+
 
 #Prisma II
 W2_Hg = matrix("""
