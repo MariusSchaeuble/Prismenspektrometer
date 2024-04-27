@@ -6,11 +6,12 @@ from Helpers import identifier, isCharacter
 import math
 from numpy import matrix, array, mean, std, max, linspace, ones, sin, cos, tan, arctan, pi, sqrt, exp
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import plot, show, xlabel, ylabel, legend, title, savefig, errorbar
+from matplotlib.pyplot import plot, show, xlabel, ylabel, legend, title, savefig, errorbar, grid
 import scipy.optimize as opt
 from GPII import *
 from math import sqrt
 pi = math.pi
+
 
 
 plt.rcParams["text.usetex"] = True
@@ -31,7 +32,8 @@ plt.rcParams.update(tex_fonts)
 plt.rc('text', usetex=True)
 
 
-
+matplotlib.rc('xtick', labelsize=20)
+matplotlib.rc('ytick', labelsize=20)
 
 
 
@@ -118,6 +120,10 @@ sigma_n_gelb = gauss("sqrt(2*cos(epsilon)*sin(epsilon + gelb - theta)*sin(theta)
 
 #Prisma I
 
+def parabel(x, a, b, c):
+    return a*x**2 + b*x + c
+
+
 W1_Hg = matrix("""
 2 623.4 19.3;
 3 578 19.4;
@@ -134,8 +140,68 @@ n1_Hg = ones(len(delta1))
 for i in range(len(delta1)):
     n1_Hg[i] = (sqrt(2*cos(epsilon)*sin(epsilon + delta1[i, 0] - theta)*sin(theta) + sin(theta)**2 + sin(epsilon + delta1[i, 0] - theta)**2)/sin(epsilon))
 
-lamda1_Hg = W1_Hg[:, 1]
+lamda1_Hg = toArray(W1_Hg[:, 1])
 
+errorbar(lamda1_Hg, n1_Hg, sigma_n_gelb*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
+optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, n1_Hg,  maxfev=10000)
+plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Brechungsindex', fontsize=20)
+legend(fontsize=20)
+plt.tight_layout()
+savefig('n1_Hg.png')
+show()
+
+al1 = optimizedParameters[0]
+bl1 = optimizedParameters[1]
+
+delta1 = toArray(360 + W1_Hg[:, 2] - Nullpunkt)
+errorbar(lamda1_Hg, delta1, 1*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
+optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, delta1,  maxfev=10000)
+plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Ablenkwinkel in °', fontsize=20)
+legend(fontsize=20)
+plt.tight_layout()
+savefig('delta1.png')
+show()
+
+ad1 = optimizedParameters[0]*2*pi/360
+bd1 = optimizedParameters[1]*2*pi/360
+
+def ableitungsQuozient(x):
+    return (2*ad1*x + bd1)/(2*al1*x + bl1)
+    #return bd1/bl1
+
+Term11 = ones(len(n1_Hg))
+sigma_Term11 = ones(len(n1_Hg))
+for i in range(len(n1_Hg)):
+    Term11[i] = 2*sin(epsilon/2)/sqrt(1 - n1_Hg[i]**2*sin(epsilon/2)**2)
+    temp1 = n1_Hg[i]
+    sigma_temp1 = sigma_n_gelb
+    sigma_Term11[i] = gauss("2*sin(epsilon/2)/sqrt(1 - temp1**2*sin(epsilon/2)**2)")
+
+
+Term12 = ones(len(n1_Hg))
+sigma_Term12 = ones(len(n1_Hg))
+for i in range(len(n1_Hg)):
+    Term12[i] = sin(epsilon)*n1_Hg[i]/sqrt((n1_Hg[i]**2 - sin(theta)**2)*(1 - (sin(epsilon)*sqrt(n1_Hg[i]**2 - sin(theta)**2) - cos(epsilon)*sin(theta))**2))
+    temp1 = n1_Hg[i]
+    sigma_temp1 = sigma_n_gelb
+    sigma_Term12[i] = gauss("sin(epsilon)*n1_Hg[i]/sqrt((n1_Hg[i]**2 - sin(theta)**2)*(1 - (sin(epsilon)*sqrt(n1_Hg[i]**2 - sin(theta)**2) - cos(epsilon)*sin(theta))**2))".replace("n1_Hg[i]", "temp1"))
+
+
+errorbar(lamda1_Hg, Term11, sigma_Term11, None,'x', label='Genäherter Term')
+errorbar(lamda1_Hg, Term12, sigma_Term12, None, 'x', label='Allgemeiner Term')
+plot(lamda1_Hg, ableitungsQuozient(lamda1_Hg), label='AbleitungsQuozient')
+#optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, delta1,  maxfev=10000)
+#plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Wert der Quozienten', fontsize=20)
+legend(fontsize=15)
+plt.tight_layout()
+savefig('Term1X.png')
+show()
 
 
 #Prisma II
@@ -151,6 +217,76 @@ W2_Hg = matrix("""
 
 """)
 
+delta1 = 360 + W2_Hg[:, 2] - Nullpunkt
+delta1 = delta1*2*pi/360
+n1_Hg = ones(len(delta1))
+for i in range(len(delta1)):
+    n1_Hg[i] = (sqrt(2*cos(epsilon)*sin(epsilon + delta1[i, 0] - theta)*sin(theta) + sin(theta)**2 + sin(epsilon + delta1[i, 0] - theta)**2)/sin(epsilon))
+
+lamda1_Hg = toArray(W2_Hg[:, 1])
+
+errorbar(lamda1_Hg, n1_Hg, sigma_n_gelb*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
+optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, n1_Hg,  maxfev=10000)
+plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Brechungsindex', fontsize=20)
+legend(fontsize=20)
+plt.tight_layout()
+savefig('n2_Hg.png')
+show()
+
+al1 = optimizedParameters[0]
+bl1 = optimizedParameters[1]
+
+delta1 = toArray(360 + W2_Hg[:, 2] - Nullpunkt)
+errorbar(lamda1_Hg, delta1, 1*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
+optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, delta1,  maxfev=10000)
+plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Ablenkwinkel in °', fontsize=20)
+legend(fontsize=20)
+plt.tight_layout()
+savefig('delta2.png')
+show()
+
+ad1 = optimizedParameters[0]*2*pi/360
+bd1 = optimizedParameters[1]*2*pi/360
+
+def ableitungsQuozient(x):
+    return (2*ad1*x + bd1)/(2*al1*x + bl1)
+    #return bd1/bl1
+
+Term11 = ones(len(n1_Hg))
+sigma_Term11 = ones(len(n1_Hg))
+for i in range(len(n1_Hg)):
+    Term11[i] = 2*sin(epsilon/2)/sqrt(1 - n1_Hg[i]**2*sin(epsilon/2)**2)
+    temp1 = n1_Hg[i]
+    sigma_temp1 = sigma_n_gelb
+    sigma_Term11[i] = gauss("2*sin(epsilon/2)/sqrt(1 - temp1**2*sin(epsilon/2)**2)")
+
+
+Term12 = ones(len(n1_Hg))
+sigma_Term12 = ones(len(n1_Hg))
+for i in range(len(n1_Hg)):
+    Term12[i] = sin(epsilon)*n1_Hg[i]/sqrt((n1_Hg[i]**2 - sin(theta)**2)*(1 - (sin(epsilon)*sqrt(n1_Hg[i]**2 - sin(theta)**2) - cos(epsilon)*sin(theta))**2))
+    temp1 = n1_Hg[i]
+    sigma_temp1 = sigma_n_gelb
+    sigma_Term12[i] = gauss("sin(epsilon)*n1_Hg[i]/sqrt((n1_Hg[i]**2 - sin(theta)**2)*(1 - (sin(epsilon)*sqrt(n1_Hg[i]**2 - sin(theta)**2) - cos(epsilon)*sin(theta))**2))".replace("n1_Hg[i]", "temp1"))
+
+
+errorbar(lamda1_Hg, Term11, sigma_Term11, None,'x', label='Genäherter Term')
+errorbar(lamda1_Hg, Term12, sigma_Term12, None, 'x', label='Allgemeiner Term')
+plot(lamda1_Hg, ableitungsQuozient(lamda1_Hg), label='AbleitungsQuozient')
+#optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, delta1,  maxfev=10000)
+#plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Wert der Quozienten', fontsize=20)
+legend(fontsize=15)
+plt.tight_layout()
+savefig('Term2X.png')
+show()
+
+
 #Prisma III
 W3_Hg = matrix("""
 2 623.8 38.2;
@@ -163,6 +299,77 @@ W3_Hg = matrix("""
 9 407.8 44.3;
 10 404.7 44.5
 """)
+
+delta1 = 360 + W3_Hg[:, 2] - Nullpunkt
+delta1 = delta1*2*pi/360
+n1_Hg = ones(len(delta1))
+for i in range(len(delta1)):
+    n1_Hg[i] = (sqrt(2*cos(epsilon)*sin(epsilon + delta1[i, 0] - theta)*sin(theta) + sin(theta)**2 + sin(epsilon + delta1[i, 0] - theta)**2)/sin(epsilon))
+
+lamda1_Hg = toArray(W3_Hg[:, 1])
+
+errorbar(lamda1_Hg, n1_Hg, sigma_n_gelb*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
+optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, n1_Hg,  maxfev=10000)
+plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Brechungsindex', fontsize=20)
+legend(fontsize=20)
+plt.tight_layout()
+savefig('n3_Hg.png')
+show()
+
+al1 = optimizedParameters[0]
+bl1 = optimizedParameters[1]
+
+delta1 = toArray(360 + W3_Hg[:, 2] - Nullpunkt)
+errorbar(lamda1_Hg, delta1, 1*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
+optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, delta1,  maxfev=10000)
+plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Ablenkwinkel in °', fontsize=20)
+legend(fontsize=20)
+plt.tight_layout()
+savefig('delta3.png')
+show()
+
+ad1 = optimizedParameters[0]*2*pi/360
+bd1 = optimizedParameters[1]*2*pi/360
+
+def ableitungsQuozient(x):
+    return (2*ad1*x + bd1)/(2*al1*x + bl1)
+    #return bd1/bl1
+
+Term11 = ones(len(n1_Hg))
+sigma_Term11 = ones(len(n1_Hg))
+for i in range(len(n1_Hg)):
+    Term11[i] = 2*sin(epsilon/2)/sqrt(1 - n1_Hg[i]**2*sin(epsilon/2)**2)
+    temp1 = n1_Hg[i]
+    sigma_temp1 = sigma_n_gelb
+    sigma_Term11[i] = gauss("2*sin(epsilon/2)/sqrt(1 - temp1**2*sin(epsilon/2)**2)")
+
+
+Term12 = ones(len(n1_Hg))
+sigma_Term12 = ones(len(n1_Hg))
+for i in range(len(n1_Hg)):
+    Term12[i] = sin(epsilon)*n1_Hg[i]/sqrt((n1_Hg[i]**2 - sin(theta)**2)*(1 - (sin(epsilon)*sqrt(n1_Hg[i]**2 - sin(theta)**2) - cos(epsilon)*sin(theta))**2))
+    temp1 = n1_Hg[i]
+    sigma_temp1 = sigma_n_gelb
+    sigma_Term12[i] = gauss("sin(epsilon)*n1_Hg[i]/sqrt((n1_Hg[i]**2 - sin(theta)**2)*(1 - (sin(epsilon)*sqrt(n1_Hg[i]**2 - sin(theta)**2) - cos(epsilon)*sin(theta))**2))".replace("n1_Hg[i]", "temp1"))
+
+
+errorbar(lamda1_Hg, Term11, sigma_Term11, None,'x', label='Genäherter Term')
+errorbar(lamda1_Hg, Term12, sigma_Term12, None, 'x', label='Allgemeiner Term')
+plot(lamda1_Hg, ableitungsQuozient(lamda1_Hg), label='AbleitungsQuozient')
+#optimizedParameters, s = opt.curve_fit(parabel,lamda1_Hg, delta1,  maxfev=10000)
+#plt.plot(lamda1_Hg, parabel(lamda1_Hg, *optimizedParameters), label="fit")
+xlabel('Wellenlänge in nm', fontsize=20)
+ylabel('Wert der Quozienten', fontsize=20)
+legend(fontsize=15)
+plt.tight_layout()
+savefig('Term3X.png')
+show()
+
+
 
 #4,Punkt Helium Lampe, Prisma III
 #rot, gelb, zyan, zyan, violett, violett

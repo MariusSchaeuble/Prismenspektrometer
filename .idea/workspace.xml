@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e9851fbd-52ce-42c2-a14c-f744a2fff3b7" name="Changes" comment="sync">
-      <change beforePath="$PROJECT_DIR$/../Beugung3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Beugung3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Grundpraktikum/.idea/Grundpraktikum.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Grundpraktikum/.idea/Grundpraktikum.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Grundpraktikum/GPII.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Grundpraktikum/GPII.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Grundpraktikum/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Grundpraktikum/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -32,7 +30,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../Beugung3" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -52,6 +50,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/Marius/PycharmProjects/Prismenspektrometer",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -120,7 +119,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1714207158230</updated>
-      <workItem from="1714207159401" duration="3904000" />
+      <workItem from="1714207159401" duration="10902000" />
     </task>
     <task id="LOCAL-00001" summary="sync">
       <option name="closed" value="true" />
@@ -130,7 +129,23 @@
       <option name="project" value="LOCAL" />
       <updated>1714207273209</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="sync">
+      <option name="closed" value="true" />
+      <created>1714211095705</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1714211095705</updated>
+    </task>
+    <task id="LOCAL-00003" summary="sync">
+      <option name="closed" value="true" />
+      <created>1714211149487</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1714211149487</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
