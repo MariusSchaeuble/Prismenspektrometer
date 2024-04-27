@@ -154,6 +154,7 @@ show()
 
 al1 = optimizedParameters[0]
 bl1 = optimizedParameters[1]
+opn1 = optimizedParameters
 
 delta1 = toArray(360 + W1_Hg[:, 2] - Nullpunkt)
 errorbar(lamda1_Hg, delta1, 1*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
@@ -237,6 +238,7 @@ show()
 
 al1 = optimizedParameters[0]
 bl1 = optimizedParameters[1]
+opn2 = optimizedParameters
 
 delta1 = toArray(360 + W2_Hg[:, 2] - Nullpunkt)
 errorbar(lamda1_Hg, delta1, 1*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
@@ -320,6 +322,7 @@ show()
 
 al1 = optimizedParameters[0]
 bl1 = optimizedParameters[1]
+opn3 = optimizedParameters
 
 delta1 = toArray(360 + W3_Hg[:, 2] - Nullpunkt)
 errorbar(lamda1_Hg, delta1, 1*ones(len(lamda1_Hg)), None,'x', label='Messwerte')
@@ -334,6 +337,8 @@ show()
 
 ad1 = optimizedParameters[0]*2*pi/360
 bd1 = optimizedParameters[1]*2*pi/360
+opDelta3 = optimizedParameters
+
 
 def ableitungsQuozient(x):
     return (2*ad1*x + bd1)/(2*al1*x + bl1)
@@ -381,3 +386,30 @@ W_He = matrix("""
 42.25;
 42.5
 """)
+
+delta_He = 360 + W_He - Nullpunkt
+delta_He = toArray(delta_He)
+
+def disp3(lamda):
+    return lamda**2*opDelta3[0] + lamda*opDelta3[1] + opDelta3[2]
+
+lamda_He = ones(len(delta_He))
+for i in range(len(delta_He)):
+    def disp3(lamda):
+        return lamda ** 2 * opDelta3[0] + lamda * opDelta3[1] + opDelta3[2] - delta_He[i]
+    lamda_He[i] = opt.fsolve(disp3, 500)
+
+
+#Auflösungen
+b = 0.05
+sigma_b = 0.03
+A1 = abs(b*(2*opn1[0]*578 + opn1[1]))
+sigma_A1 = -sigma_b*(2*opn1[0]*578 + opn1[1])
+
+A2 = -b*(2*opn2[0]*578 + opn2[1])
+sigma_A2 = -sigma_b*(2*opn2[0]*578 + opn2[1])
+
+A3 = -b*(2*opn3[0]*578 + opn3[1])
+sigma_A3 = -sigma_b*(2*opn3[0]*578 + opn3[1])
+
+
