@@ -95,6 +95,9 @@ sigma_n1 = gauss("sin(2*(pi/360)*((delta_min1 + epsilon)/2))/sin(2*(pi/360)*(eps
 n2 = sin(2*pi/360*((delta_min2 + epsilon)/2))/sin(2*pi/360*(epsilon/2))
 sigma_n2 = gauss("sin(2*(pi/360)*((delta_min2 + epsilon)/2))/sin(2*(pi/360)*(epsilon/2))")
 
+RCP(n1, sigma_n1)
+RCP(n2, sigma_n2)
+
 #2. punkt
 Nullpunkt = 339
 gelb = 19.4
@@ -394,10 +397,18 @@ def disp3(lamda):
     return lamda**2*opDelta3[0] + lamda*opDelta3[1] + opDelta3[2]
 
 lamda_He = ones(len(delta_He))
+sigma_lamda_He = ones(len(delta_He))
 for i in range(len(delta_He)):
     def disp3(lamda):
         return lamda ** 2 * opDelta3[0] + lamda * opDelta3[1] + opDelta3[2] - delta_He[i]
     lamda_He[i] = opt.fsolve(disp3, 500)
+    def disp3UP(lamda):
+        return lamda ** 2 * opDelta3[0] + lamda * opDelta3[1] + opDelta3[2] - delta_He[i] + 0.1
+    def disp3DOWN(lamda):
+        return lamda ** 2 * opDelta3[0] + lamda * opDelta3[1] + opDelta3[2] - delta_He[i] - 0.1
+    up = opt.fsolve(disp3UP, 500)
+    down = opt.fsolve(disp3DOWN, 500)
+    sigma_lamda_He[i] = max([abs(lamda_He[i] - up), abs(lamda_He[i] - down)])
 
 
 #Auflösungen
